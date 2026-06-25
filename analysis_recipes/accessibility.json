@@ -1,0 +1,7 @@
+{
+  "id": "accessibility",
+  "label": "접근성과 이동 효율",
+  "keywords": ["접근", "거리", "경사", "이동시간", "무장애"],
+  "methods": ["route_distance", "slope", "network_depth", "alternative_routes"],
+  "requires_3d_model": false
+}

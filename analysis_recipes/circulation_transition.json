@@ -1,0 +1,13 @@
+{
+  "id": "circulation_transition",
+  "label": "동선 전환과 공간 경험",
+  "description": "이동 방식의 전환이 공간 경험에 실질적 차이를 만드는지 분석한다.",
+  "keywords": ["동선", "계단", "램프", "전환", "시퀀스", "도착", "경험"],
+  "methods": [
+    "movement_cost",
+    "directional_transformation",
+    "visual_transformation",
+    "spatial_recognition_sequence"
+  ],
+  "requires_3d_model": false
+}

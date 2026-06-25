@@ -1,0 +1,7 @@
+{
+  "id": "connectivity",
+  "label": "공간 연결 구조",
+  "keywords": ["연결", "네트워크", "중심성", "깊이", "선택"],
+  "methods": ["network_graph", "topological_depth", "choice", "dead_end_cycle"],
+  "requires_3d_model": false
+}

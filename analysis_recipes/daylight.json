@@ -1,0 +1,7 @@
+{
+  "id": "daylight",
+  "label": "일조와 자연채광",
+  "keywords": ["일조", "채광", "빛", "그림자"],
+  "methods": ["solar_exposure", "daylight_availability"],
+  "requires_3d_model": true
+}

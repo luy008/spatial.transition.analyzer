@@ -1,0 +1,7 @@
+{
+  "id": "visibility_threshold",
+  "label": "시각적 임계와 공간 노출",
+  "keywords": ["시야", "가시", "보이드", "중정", "개구부", "인지"],
+  "methods": ["isovist_sequence", "angular_visibility", "threshold_events"],
+  "requires_3d_model": false
+}
