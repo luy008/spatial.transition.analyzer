@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+.streamlit/
+exports/
+archive_before_*/
+*.zip
+*.pdf
+*.png
+*.svg
+.env

@@ -1,0 +1,18 @@
+﻿{
+  "recipe": "circulation_transition",
+  "isovist_rays": 1440,
+  "isovist_max_dist_m": 30.0,
+  "n_sample_points": 11,
+  "courtyard_radius_m": 4.0,
+  "ramp_centerline_radius_m": 4.75,
+  "ramp_rise_m": 3.0,
+  "ramp_total_rotation_deg": 270.0,
+  "ramp_speed_mps": 0.8,
+  "stair_speed_mps": 0.5,
+  "visibility_thresholds": {
+    "glimpse_ratio": 0.05,
+    "partial_ratio": 0.3,
+    "glimpse_angular_deg": 5.0,
+    "partial_angular_deg": 25.0
+  }
+}

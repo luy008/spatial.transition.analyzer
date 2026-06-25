@@ -1,0 +1,17 @@
+{
+  "project_name": "Cultural Gallery Circulation Transition Study",
+  "source_file": "sample_data/Drawing1.dxf",
+  "units": "mm",
+  "dxf_unit_scale": 0.001,
+  "title_en": "From Repeated Stairs to a Courtyard Ramp: Experiential Transition or Formal Device?",
+  "title_ko": "반복되는 계단에서 중정 순환 램프로",
+  "design_question": "하부 층에서 반복되던 계단 동선이 4층에서 5층으로 진입할 때 중정 순환 램프로 전환되는 결정은, 최상부 전시공간으로의 실질적인 경험 전환을 만드는가, 아니면 형태적으로만 분리된 동선 장치에 머무르는가?",
+  "design_intent": "1층부터 4층까지 계단을 중심으로 이동한다. 4층에서 5층으로 이동할 때 중정을 감싸는 램프로 전환한다. 램프는 최상부 전시공간이 이전 공간과 다른 성격을 가진다는 점을 이동 과정에서 암시하기 위한 장치다. 중정은 상승 방향과 현재 위치를 인지하게 하는 기준점으로 계획하였다.",
+  "professor_critique": "어쩌다 이러한 볼륨이 도출되었는가. 계단으로 이어지던 동선이 왜 최상부에서 갑자기 램프로 바뀌는가.",
+  "analysis_recipe": "circulation_transition",
+  "forbidden_strings": [
+    "Stair to Ramp: Does a Change in Circulation Produce a Change in Experience?",
+    "계단에서 램프로의 전환은 최상부 전시공간으로의 경험 전환을 만드는가?",
+    "TRANSITION MATRIX"
+  ]
+}
