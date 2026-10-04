@@ -1,0 +1,224 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RIBBON/30 안전성 검토</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap"><style>
+:root{
+  /* layout: one reading column, calc-sheet tables, verdict first */
+  --bg:#eef1f4; --surface:#ffffff; --ink:#16202a; --ink-2:#465462; --muted:#6f7c89; --line:#d3dae1;
+  --accent:#1d5d8c; --accent-wash:#e3edf5;
+  --ok:#23704a; --ok-wash:#e2f1e8; --warn:#8a5a00; --warn-wash:#fbefd6; --bad:#a3271f; --bad-wash:#f8e1df;
+  --display:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e141a; --surface:#151d25; --ink:#e3e9ef; --ink-2:#a9b5c1; --muted:#7e8b98; --line:#2a3541;
+  --accent:#73b2e0; --accent-wash:#1a2a38;
+  --ok:#62c993; --ok-wash:#173327; --warn:#e3a944; --warn-wash:#3a2c12; --bad:#f2837a; --bad-wash:#3d1c1a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e141a; --surface:#151d25; --ink:#e3e9ef; --ink-2:#a9b5c1; --muted:#7e8b98; --line:#2a3541;
+  --accent:#73b2e0; --accent-wash:#1a2a38;
+  --ok:#62c993; --ok-wash:#173327; --warn:#e3a944; --warn-wash:#3a2c12; --bad:#f2837a; --bad-wash:#3d1c1a; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.75 var(--display);padding-inline:16px}
+main{max-width:900px;margin:0 auto;padding-block:40px 64px;display:grid;gap:12px}
+h1{font-size:clamp(26px,4.4vw,38px);line-height:1.25;margin:4px 0 6px;text-wrap:balance;font-weight:700;letter-spacing:-.01em}
+h2{font-size:21px;margin:34px 0 4px;text-wrap:balance;font-weight:700}
+h3{font-size:16px;margin:18px 0 0}
+p{margin:0;max-width:68ch}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.lede{color:var(--ink-2);font-size:16px}
+.verdict{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:6px;padding:20px 22px;display:grid;gap:12px}
+.verdict h2{margin:0;font-size:20px}
+.verdict ol{margin:0;padding-left:22px;display:grid;gap:6px}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:grid;gap:2px;min-width:0}
+.fig .v{font:600 26px/1.2 var(--display);font-variant-numeric:tabular-nums}
+.fig .l{font-size:13px;color:var(--ink-2)}
+.fig .s{font-size:12px;color:var(--muted)}
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:560px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);background:var(--accent-wash);font-size:12px}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip{display:inline-flex;align-items:center;gap:5px;font:500 12px/1 var(--mono);padding:4px 7px;border-radius:999px;white-space:nowrap}
+.chip b{font-family:var(--display)}
+.chip.ok{background:var(--ok-wash);color:var(--ok)} .chip.warn{background:var(--warn-wash);color:var(--warn)}
+.chip.bad{background:var(--bad-wash);color:var(--bad)} .chip.info{background:var(--accent-wash);color:var(--accent)}
+.note{font-size:13px;color:var(--ink-2);max-width:72ch}
+.callout{background:var(--accent-wash);border-radius:6px;padding:14px 16px;display:grid;gap:6px}
+.drawings{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.drawings svg,.chartbox svg{width:100%;height:auto;display:block}
+.drawings figure,.chartbox{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px;min-width:0;position:relative}
+.m-frame{fill:none;stroke:var(--ink);stroke-width:5;stroke-linejoin:round}
+.m-leg{stroke:var(--ink);stroke-width:5;stroke-linecap:round}
+.m-rodline{stroke:var(--accent);stroke-width:3}
+.m-rod{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.m-foot{fill:var(--muted)}
+.m-dim{stroke:var(--muted);stroke-width:1}
+.m-brace{stroke:var(--ok);stroke-width:2;stroke-dasharray:6 4}
+.m-sway{stroke:var(--bad);stroke-width:1.5;stroke-dasharray:3 3;fill:none}
+.m-arrow{stroke:var(--bad);stroke-width:1.5;fill:none}
+.m-arrowhead{fill:var(--bad)}
+.m-t{font:11px var(--display);fill:var(--ink-2)}
+.m-h{font:600 12px var(--display);fill:var(--ink)}
+.grid{stroke:var(--line);stroke-width:1}
+.tick{font:11px var(--mono);fill:var(--muted)}
+.axis{font:12px var(--display);fill:var(--ink-2)}
+.zl{font:12px var(--display);fill:var(--ink-2)}
+.z-bad{fill:var(--bad-wash)} .z-warn{fill:var(--warn-wash)}
+.series{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.dot{fill:var(--accent);stroke:var(--surface);stroke-width:2;cursor:pointer}
+.dot:hover,.dot:focus{r:6.5;outline:none}
+.mark{stroke:var(--ink-2);stroke-width:1}
+#tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);font:12px/1.3 var(--mono);padding:6px 8px;border-radius:4px;white-space:nowrap}
+ul.plain{margin:0;padding-left:20px;display:grid;gap:4px;max-width:72ch}
+code{font-family:var(--mono);font-size:.92em;background:var(--accent-wash);padding:1px 5px;border-radius:3px}
+a{color:var(--accent)}
+small,.muted{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<main>
+<p class="eyebrow">RIBBON / 30 · 2차 구조 검토</p>
+<h1>30kg은 버틴다. 다만 접합이 단단해야 한다.</h1>
+<p class="lede">1차 보고서(GPT)의 형상과 단면을 그대로 3D 골조로 다시 만들었습니다. 빠져 있던 검토 항목, 즉 3D 비틀림·횡변형, 전체 좌굴, 접합부, 국부좌굴, 미끄러짐, 피로, 응력집중을 계산했습니다. 4인 가정 젖은 빨래 무게의 근거도 찾았습니다.</p>
+
+<section class="verdict" aria-labelledby="v">
+  <h2 id="v">판정: 조건부 적합</h2>
+  <p>계산한 모든 하중 경우에서 부재 응력은 항복강도의 49% 이하입니다(설계하중 = 1.35×자중 + 1.5×빨래). 30kg 목표는 현실적인 4인 가정 1회 빨래량(약 6~25kg)을 덮습니다. 아래 두 조건이 충족될 때만 이 판정이 성립합니다.</p>
+  <ol>
+    <li><b>봉–프레임 접합이 휘어지지 않을 만큼 단단해야 합니다.</b> 회전강성이 접합 1곳당 약 5.3×10⁵ N·mm/rad 이상이어야 하고(용접이면 충족), 유격이 없어야 합니다. 핀처럼 돌아가는 접합이면 길이방향으로 접히듯 무너지는 <b>메커니즘</b>이 됩니다.</li>
+    <li><b>또는 양쪽 끝 다리에 X 가새를 답니다(대안 B).</b> 이렇게 하면 접합이 핀이어도 α<sub>cr</sub> = 76로 안정합니다. 무게는 1.85kg 늘고, 가새 가운데를 핀으로 하면 가위식으로 접을 수 있습니다.</li>
+  </ol>
+  <p class="note">실물 시험은 하지 않았습니다. 바닥 마찰, 실제 접합 강성, 용접 품질은 측정이 필요합니다. 마지막 절에 시험 절차를 제안했습니다.</p>
+</section>
+
+<div class="figs">
+  <div class="fig"><span class="l">최대 응력 이용률 (설계하중)</span><span class="v">0.49</span><span class="s">봉, 핀접합, 한 봉 5kg 집중</span></div>
+  <div class="fig"><span class="l">전체 좌굴 계수 α<sub>cr</sub></span><span class="v">16.0</span><span class="s">강접합 · 기준 ≥ 10</span></div>
+  <div class="fig"><span class="l">핀접합 시 길이방향</span><span class="v">메커니즘</span><span class="s">최소 고유값 ≈ 0, 가새 필요</span></div>
+  <div class="fig"><span class="l">빈 건조대를 넘기는 힘</span><span class="v">60 N</span><span class="s">꼭대기 길이방향 · 약 6.1kgf</span></div>
+</div>
+
+<h2>1. 4인 가정 젖은 빨래는 얼마나 무거운가</h2>
+<p>세탁기 용량은 <b>마른 빨래</b> 기준입니다. 탈수 후 남는 물은 EU 에너지 라벨의 탈수 등급(잔류수분율 = 물 질량 ÷ 마른 빨래 질량)으로 범위를 잡았습니다. B등급 상한은 54% 미만, D등급 상한은 72% 미만입니다. 여기서는 53%~72%를 썼습니다.</p>
+<div class="tw"><table>
+<tr><th>시나리오</th><th>마른 빨래 kg</th><th>젖은 빨래 kg</th><th>30kg 대비</th><th>근거</th><th>신뢰도</th></tr>
+<tr><td>EU 평균 1회 세탁량(2020)</td><td class=n>4.0</td><td class=n>6.1 ~ 6.9</td><td><span class="chip ok"><b aria-hidden="true">✓</b>23%</span></td><td>EEA 자료의 수치(검색 결과에서 확인, 원문 접속 실패)</td><td>중</td></tr><tr><td>8~9kg 드럼 가득 (3~4인 권장 용량)</td><td class=n>9.0</td><td class=n>13.8 ~ 15.5</td><td><span class="chip ok"><b aria-hidden="true">✓</b>52%</span></td><td>Bosch 구매 안내</td><td>중</td></tr><tr><td>국내 드럼 21kg의 절반</td><td class=n>10.5</td><td class=n>16.1 ~ 18.1</td><td><span class="chip ok"><b aria-hidden="true">✓</b>60%</span></td><td>국내 구매 가이드(블로그)</td><td>낮음</td></tr><tr><td>국내 통돌이 18kg의 80%</td><td class=n>14.4</td><td class=n>22.0 ~ 24.8</td><td><span class="chip ok"><b aria-hidden="true">✓</b>83%</span></td><td>국내 구매 가이드(블로그)</td><td>낮음</td></tr><tr><td>국내 통돌이 18kg 꽉 채움 (극단)</td><td class=n>18.0</td><td class=n>27.5 ~ 31.0</td><td><span class="chip warn"><b aria-hidden="true">!</b>103%</span></td><td>가정한 상한</td><td>가정</td></tr>
+</table></div>
+<p class="note">국내 세탁기 권장 용량은 공식 통계가 아니라 구매 가이드 수준의 자료입니다. 국내 세탁기의 실제 잔류수분율 측정 자료는 찾지 못했습니다. 통돌이를 18kg까지 꽉 채운 극단적인 경우에만 젖은 빨래가 30kg을 조금 넘을 수 있습니다(최대 약 31kg). 이 경우도 설계하중 계수 1.5로 덮입니다(45kg 상당).</p>
+
+<h2>2. 해석 모델</h2>
+<div class="drawings"><figure><svg viewBox="0 0 440 450" role="img" aria-label="정면도: 폭 1,200mm, 높이 1,200mm 띠형 프레임과 봉 18개"><polygon points="40.0,400.0 40.0,349.6 48.4,190.0 65.2,106.0 65.2,106.0 73.6,101.2 82.0,96.7 90.4,92.5 98.8,88.6 107.2,84.9 115.6,81.6 124.0,78.5 132.4,75.8 140.8,73.3 149.2,71.1 157.6,69.2 166.0,67.6 174.4,66.3 182.8,65.3 191.2,64.6 199.6,64.1 208.0,64.0 216.4,64.1 224.8,64.6 233.2,65.3 241.6,66.3 250.0,67.6 258.4,69.2 266.8,71.1 275.2,73.3 283.6,75.8 292.0,78.5 300.4,81.6 308.8,84.9 317.2,88.6 325.6,92.5 334.0,96.7 342.4,101.2 350.8,106.0 350.8,106.0 367.6,190.0 376.0,349.6 376.0,400.0 40.0,400.0" class="m-frame"/><circle cx="65.2" cy="106.0" r="3.2" class="m-rod"/><circle cx="82.0" cy="96.7" r="3.2" class="m-rod"/><circle cx="98.8" cy="88.6" r="3.2" class="m-rod"/><circle cx="115.6" cy="81.6" r="3.2" class="m-rod"/><circle cx="132.4" cy="75.8" r="3.2" class="m-rod"/><circle cx="149.2" cy="71.1" r="3.2" class="m-rod"/><circle cx="166.0" cy="67.6" r="3.2" class="m-rod"/><circle cx="182.8" cy="65.3" r="3.2" class="m-rod"/><circle cx="199.6" cy="64.1" r="3.2" class="m-rod"/><circle cx="216.4" cy="64.1" r="3.2" class="m-rod"/><circle cx="233.2" cy="65.3" r="3.2" class="m-rod"/><circle cx="250.0" cy="67.6" r="3.2" class="m-rod"/><circle cx="266.8" cy="71.1" r="3.2" class="m-rod"/><circle cx="283.6" cy="75.8" r="3.2" class="m-rod"/><circle cx="300.4" cy="81.6" r="3.2" class="m-rod"/><circle cx="317.2" cy="88.6" r="3.2" class="m-rod"/><circle cx="334.0" cy="96.7" r="3.2" class="m-rod"/><circle cx="350.8" cy="106.0" r="3.2" class="m-rod"/><rect x="34.0" y="400.0" width="12" height="5" rx="1.5" class="m-foot"/><rect x="370.0" y="400.0" width="12" height="5" rx="1.5" class="m-foot"/><line x1="40" y1="422" x2="376.00000000000006" y2="422" class="m-dim"/><text x="208.00000000000003" y="436" class="m-t" text-anchor="middle">1,200 (발 중심 간격)</text><line x1="402.00000000000006" y1="400" x2="402.00000000000006" y2="63.99999999999994" class="m-dim"/><text x="408.00000000000006" y="231.99999999999997" class="m-t">1,200</text><text x="208.00000000000003" y="51.99999999999994" class="m-t" text-anchor="middle">봉 18개 · 60 간격 · 포물선 위 띠</text><text x="58.4" y="193.99999999999997" class="m-t">(30, 750)</text><text x="50" y="353.6" class="m-t">(0, 180)</text><text x="12" y="20" class="m-h">정면 (X–Y) · 프레임 1개</text></svg></figure><figure><svg viewBox="0 0 440 450" role="img" aria-label="측면도: 프레임 2개 간격 1,000mm, 래킹 변형과 X 가새 대안"><defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" class="m-arrowhead"/></marker></defs><line x1="70.0" y1="400.0" x2="330.0" y2="205.0" class="m-brace"/><line x1="330.0" y1="400.0" x2="70.0" y2="205.0" class="m-brace"/><line x1="70.0" y1="400.0" x2="116.0" y2="88.0" class="m-sway"/><line x1="330.0" y1="400.0" x2="376.0" y2="88.0" class="m-sway"/><line x1="116.0" y1="99.0" x2="376.0" y2="99.0" class="m-sway"/><path d="M190.0,64.59999999999997 h40" class="m-arrow" marker-end="url(#ah)"/><text x="236.0" y="68.59999999999997" class="m-t">래킹(길이방향 흔들림)</text><line x1="70.0" y1="400.0" x2="70.0" y2="88.0" class="m-leg"/><line x1="330.0" y1="400.0" x2="330.0" y2="88.0" class="m-leg"/><line x1="70.0" y1="101.0" x2="330.0" y2="101.0" class="m-rodline"/><rect x="64.0" y="400.0" width="12" height="5" rx="1.5" class="m-foot"/><rect x="324.0" y="400.0" width="12" height="5" rx="1.5" class="m-foot"/><line x1="70.0" y1="422.0" x2="330.0" y2="422.0" class="m-dim"/><text x="200.0" y="436.0" class="m-t" text-anchor="middle">1,000 (프레임 간격 = 봉 길이)</text><text x="200.0" y="254.4" class="m-t" text-anchor="middle">점선: X 가새(대안 B)</text><text x="12" y="20" class="m-h">측면 (Z–Y) · 끝에서 본 모습</text></svg></figure></div>
+<ul class="plain note">
+<li>형상은 1차 보고서 도면 좌표에서 복원했습니다. 발 (0,0)·(1200,0), 다리 꺾임점 (0,180)·(30,750)·(90,1050), 상부는 꼭대기 1,200mm인 포물선입니다. 강재 중량 14.65kg으로 1차 보고서의 14.65kg과 일치합니다.</li>
+<li>3D 보 요소(절점당 6자유도), 하중 경우 7개. 프레임 RHS 40×20×1(40mm가 프레임 평면 안), 봉 CHS 16×1, E = 200GPa, f<sub>y</sub> = 235MPa.</li>
+<li>바닥: 4개 발이 수직으로 받치고 마찰로 수평 고정, 회전 자유. 필요한 마찰계수는 최대 0.26입니다. 마찰이 부족해 발이 미끄러져도 변위가 4.4mm로 커질 뿐 응력은 15.8MPa 수준입니다.</li>
+<li>봉–프레임 접합은 회전 스프링으로 모델링해 강성을 바꿔 가며 계산했습니다(강접합 = 10<sup>10</sup> N·mm/rad).</li>
+<li>엔진 검증: 외팔보, 비틀림, 양단고정보, 단순보, 오일러 좌굴 2종 등 이론해와 비교한 단위시험 10개를 통과했습니다.</li>
+</ul>
+
+<h2>3. 1차 보고서 숫자 교차검증</h2>
+<div class="tw"><table>
+<tr><th>항목</th><th>1차(GPT, 2D)</th><th>이번(3D)</th><th>판단</th></tr>
+<tr><td>강재 중량</td><td class=n>14.65 kg</td><td class=n>14.65 kg</td><td><span class="chip ok"><b aria-hidden="true">✓</b>일치</span></td></tr>
+<tr><td>30kg 균등, 프레임 변위</td><td class=n>0.257 mm</td><td class=n>0.267 mm</td><td><span class="chip ok"><b aria-hidden="true">✓</b>일치</span></td></tr>
+<tr><td>30kg 폭 한쪽, 프레임 변위</td><td class=n>0.329 mm</td><td class=n>0.329 mm</td><td><span class="chip ok"><b aria-hidden="true">✓</b>일치</span></td></tr>
+<tr><td>30kg 균등, 프레임 응력</td><td class=n>10.13 MPa</td><td class=n>14.68 MPa</td><td><span class="chip warn"><b aria-hidden="true">!</b>1차가 과소</span> 봉 끝 모멘트로 인한 비틀림·약축 휨은 2D에 없습니다</td></tr>
+<tr><td>봉 1개 중앙 5kg (단순지지)</td><td class=n>4.014 mm · 76.39 MPa</td><td class=n>4.016 mm · 76.42 MPa</td><td><span class="chip ok"><b aria-hidden="true">✓</b>일치</span></td></tr>
+<tr><td>빈 건조대 전도 수평력</td><td class=n>59.9 N</td><td class=n>59.9 N</td><td><span class="chip ok"><b aria-hidden="true">✓</b>일치</span></td></tr>
+<tr><td>길이방향 안정성(래킹)</td><td>검토 안 됨</td><td>접합 강성에 전적으로 의존</td><td><span class="chip bad"><b aria-hidden="true">✕</b>새로 발견</span></td></tr>
+</table></div>
+
+<h2>4. 30kg 하중 경우별 결과 (강접합)</h2>
+<p class="note">사용하중 = 자중 + 빨래 30kg(+수평 15N). 설계하중 = 1.35×자중 + 1.5×(빨래 + 수평력). 응력은 von Mises 기준이며 단위는 MPa입니다.</p>
+<div class="tw"><table>
+<tr><th>하중 경우</th><th>프레임 변위 mm</th><th>봉 처짐 mm</th><th>프레임 σ (사용)</th><th>봉 σ (사용)</th><th>프레임 (설계)</th><th>봉 (설계)</th><th>접합 M N·m (설계)</th><th>α<sub>cr</sub></th></tr>
+<tr><td>균등 배치</td><td class=n>0.267</td><td class=n>0.68</td><td class=n>14.7</td><td class=n>11.3</td><td class=n>21.6</td><td class=n>16.7</td><td class=n>1.66</td><td class=n>16.2</td></tr><tr><td>폭 한쪽(9개 봉)</td><td class=n>0.329</td><td class=n>0.95</td><td class=n>17.8</td><td class=n>17.0</td><td class=n>26.7</td><td class=n>25.3</td><td class=n>3.27</td><td class=n>16.0</td></tr><tr><td>길이 편중 70%</td><td class=n>0.313</td><td class=n>0.68</td><td class=n>16.2</td><td class=n>11.7</td><td class=n>23.8</td><td class=n>17.2</td><td class=n>1.71</td><td class=n>16.2</td></tr><tr><td>한쪽 + 앞쪽 70% (모서리)</td><td class=n>0.389</td><td class=n>0.95</td><td class=n>19.8</td><td class=n>17.6</td><td class=n>29.6</td><td class=n>26.1</td><td class=n>3.53</td><td class=n>16.0</td></tr><tr><td>가운데 봉 1개에 5kg 집중 + 나머지 균등</td><td class=n>0.277</td><td class=n>1.59</td><td class=n>17.1</td><td class=n>45.6</td><td class=n>25.7</td><td class=n>68.1</td><td class=n>7.72</td><td class=n>16.2</td></tr><tr><td>균등 + 폭방향 수평 15N</td><td class=n>0.337</td><td class=n>0.68</td><td class=n>14.8</td><td class=n>11.3</td><td class=n>21.7</td><td class=n>16.7</td><td class=n>1.66</td><td class=n>16.2</td></tr><tr><td>균등 + 길이방향 수평 15N</td><td class=n>1.712</td><td class=n>0.68</td><td class=n>18.3</td><td class=n>13.3</td><td class=n>27.3</td><td class=n>19.7</td><td class=n>3.23</td><td class=n>16.2</td></tr>
+</table></div>
+<p class="note">1차 보고서 기준(변위 4mm, 봉 처짐 5mm, 응력 117.5MPa)을 모든 경우가 만족합니다. 길이방향 수평 15N에서 꼭대기 흔들림은 1.69mm입니다.</p>
+
+<h2>5. 핵심 발견: 길이방향 안정성은 접합이 결정한다</h2>
+<p>두 프레임은 바닥에서 한 줄로 늘어선 발 위에 서 있습니다. 그래서 각 프레임은 그 줄을 축으로 앞뒤로 기울 수 있습니다. 둘을 잇는 것은 봉 18개뿐이고, 기울어짐을 막는 힘은 봉 끝 접합의 휨 저항에서만 나옵니다. 모든 하중 경우에서 1차 좌굴 모드가 이 길이방향 래킹입니다.</p>
+<div class="chartbox"><svg viewBox="0 0 640 330" id="achart" role="img" aria-label="접합 회전강성에 따른 임계하중계수 그래프"><rect x="58" y="149.0" width="562" height="133.0" class="z-bad"/><rect x="58" y="61.7" width="562" height="87.3" class="z-warn"/><line x1="58" x2="620" y1="236.3" y2="236.3" class="grid"/><text x="50" y="240.3" class="tick" text-anchor="end">0.1</text><line x1="58" x2="620" y1="149.0" y2="149.0" class="grid"/><text x="50" y="153.0" class="tick" text-anchor="end">1</text><line x1="58" x2="620" y1="61.7" y2="61.7" class="grid"/><text x="50" y="65.7" class="tick" text-anchor="end">10</text><line x1="58.0" x2="58.0" y1="20" y2="282" class="grid"/><text x="58.0" y="300" class="tick" text-anchor="middle">10<tspan dy="-6" font-size="9">3</tspan></text><line x1="138.3" x2="138.3" y1="20" y2="282" class="grid"/><text x="138.3" y="300" class="tick" text-anchor="middle">10<tspan dy="-6" font-size="9">4</tspan></text><line x1="218.6" x2="218.6" y1="20" y2="282" class="grid"/><text x="218.6" y="300" class="tick" text-anchor="middle">10<tspan dy="-6" font-size="9">5</tspan></text><line x1="298.9" x2="298.9" y1="20" y2="282" class="grid"/><text x="298.9" y="300" class="tick" text-anchor="middle">10<tspan dy="-6" font-size="9">6</tspan></text><line x1="379.1" x2="379.1" y1="20" y2="282" class="grid"/><text x="379.1" y="300" class="tick" text-anchor="middle">10<tspan dy="-6" font-size="9">7</tspan></text><line x1="459.4" x2="459.4" y1="20" y2="282" class="grid"/><text x="459.4" y="300" class="tick" text-anchor="middle">10<tspan dy="-6" font-size="9">8</tspan></text><line x1="539.7" x2="539.7" y1="20" y2="282" class="grid"/><text x="539.7" y="300" class="tick" text-anchor="middle">10<tspan dy="-6" font-size="9">9</tspan></text><line x1="620.0" x2="620.0" y1="20" y2="282" class="grid"/><text x="620.0" y="300" class="tick" text-anchor="middle">10<tspan dy="-6" font-size="9">10</tspan></text><text x="612" y="167.0" class="zl" text-anchor="end">α &lt; 1 · 30kg에서 무너짐</text><text x="612" y="79.7" class="zl" text-anchor="end">1 ≤ α &lt; 10 · 2차 효과 커짐</text><text x="66" y="53.7" class="zl">α ≥ 10 · 충분</text><path d="M58.0,257.5 L96.3,216.1 L138.3,171.4 L176.6,132.3 L218.6,94.4 L256.9,69.1 L298.9,53.5 L337.2,47.3 L379.1,44.6 L620.0,43.4" class="series"/><circle cx="58.0" cy="257.5" r="4.5" class="dot" tabindex="0" data-tip="1,000 N·mm/rad → α<sub>cr</sub> = 0.06"><title>1,000 N·mm/rad: α = 0.06</title></circle><circle cx="96.3" cy="216.1" r="4.5" class="dot" tabindex="0" data-tip="3,000 N·mm/rad → α<sub>cr</sub> = 0.17"><title>3,000 N·mm/rad: α = 0.17</title></circle><circle cx="138.3" cy="171.4" r="4.5" class="dot" tabindex="0" data-tip="10,000 N·mm/rad → α<sub>cr</sub> = 0.55"><title>10,000 N·mm/rad: α = 0.55</title></circle><circle cx="176.6" cy="132.3" r="4.5" class="dot" tabindex="0" data-tip="30,000 N·mm/rad → α<sub>cr</sub> = 1.55"><title>30,000 N·mm/rad: α = 1.55</title></circle><circle cx="218.6" cy="94.4" r="4.5" class="dot" tabindex="0" data-tip="100,000 N·mm/rad → α<sub>cr</sub> = 4.22"><title>100,000 N·mm/rad: α = 4.22</title></circle><circle cx="256.9" cy="69.1" r="4.5" class="dot" tabindex="0" data-tip="300,000 N·mm/rad → α<sub>cr</sub> = 8.23"><title>300,000 N·mm/rad: α = 8.23</title></circle><circle cx="298.9" cy="53.5" r="4.5" class="dot" tabindex="0" data-tip="1,000,000 N·mm/rad → α<sub>cr</sub> = 12.39"><title>1,000,000 N·mm/rad: α = 12.39</title></circle><circle cx="337.2" cy="47.3" r="4.5" class="dot" tabindex="0" data-tip="3,000,000 N·mm/rad → α<sub>cr</sub> = 14.62"><title>3,000,000 N·mm/rad: α = 14.62</title></circle><circle cx="379.1" cy="44.6" r="4.5" class="dot" tabindex="0" data-tip="10,000,000 N·mm/rad → α<sub>cr</sub> = 15.67"><title>10,000,000 N·mm/rad: α = 15.67</title></circle><circle cx="620.0" cy="43.4" r="4.5" class="dot" tabindex="0" data-tip="용접(사실상 강접합) → α<sub>cr</sub> = 16.20"><title>용접(사실상 강접합): α = 16.20</title></circle><line x1="160.2" x2="160.2" y1="20" y2="282" class="mark"/><text x="165.2" y="32" class="tick">α=1: 1.9×10⁴</text><line x1="276.9" x2="276.9" y1="20" y2="282" class="mark"/><text x="281.9" y="32" class="tick">α=10: 5.3×10⁵</text><text x="339.0" y="322" class="axis" text-anchor="middle">봉–프레임 접합 회전강성 k (N·mm/rad, 로그)</text><text transform="translate(14 151.0) rotate(-90)" class="axis" text-anchor="middle">임계하중계수 α<tspan dy="3" font-size="9">cr</tspan> (로그)</text></svg><div id="tip" hidden></div></div>
+<div class="tw"><table>
+<tr><th>접합 회전강성 k (N·mm/rad)</th><th>α<sub>cr</sub> (설계하중)</th><th>탄성 좌굴에 이르는 빨래 kg (이론, 결함 없음)</th><th>꼭대기 흔들림 mm / 15N</th><th>봉 처짐 mm (5kg)</th><th>봉 σ MPa (5kg)</th></tr>
+<tr><td class=n>강접합(용접)</td><td class=n><span class="chip ok"><b aria-hidden="true">✓</b>16.20</span></td><td class=n>1,035</td><td class=n>1.7</td><td class=n>1.59</td><td class=n>45.6</td></tr><tr><td class=n>10,000,000</td><td class=n><span class="chip ok"><b aria-hidden="true">✓</b>15.67</span></td><td class=n>1,001</td><td class=n>1.8</td><td class=n>1.70</td><td class=n>47.0</td></tr><tr><td class=n>3,000,000</td><td class=n><span class="chip ok"><b aria-hidden="true">✓</b>14.62</span></td><td class=n>932</td><td class=n>1.9</td><td class=n>1.92</td><td class=n>49.8</td></tr><tr><td class=n>1,000,000</td><td class=n><span class="chip ok"><b aria-hidden="true">✓</b>12.39</span></td><td class=n>788</td><td class=n>2.4</td><td class=n>2.36</td><td class=n>55.4</td></tr><tr><td class=n>300,000</td><td class=n><span class="chip warn"><b aria-hidden="true">!</b>8.23</span></td><td class=n>518</td><td class=n>3.9</td><td class=n>3.05</td><td class=n>64.1</td></tr><tr><td class=n>100,000</td><td class=n><span class="chip warn"><b aria-hidden="true">!</b>4.22</span></td><td class=n>258</td><td class=n>7.9</td><td class=n>3.57</td><td class=n>70.7</td></tr><tr><td class=n>30,000</td><td class=n><span class="chip warn"><b aria-hidden="true">!</b>1.55</span></td><td class=n>86</td><td class=n>21.9</td><td class=n>3.86</td><td class=n>74.4</td></tr><tr><td class=n>10,000</td><td class=n><span class="chip bad"><b aria-hidden="true">✕</b>0.55</span></td><td class=n>21</td><td class=n>61.9</td><td class=n>3.96</td><td class=n>75.7</td></tr><tr><td class=n>3,000</td><td class=n><span class="chip bad"><b aria-hidden="true">✕</b>0.17</span></td><td class=n>빈 상태도 불안정</td><td class=n>201.7</td><td class=n>4.00</td><td class=n>76.2</td></tr><tr><td class=n>1,000</td><td class=n><span class="chip bad"><b aria-hidden="true">✕</b>0.06</span></td><td class=n>빈 상태도 불안정</td><td class=n>601.4</td><td class=n>4.01</td><td class=n>76.4</td></tr>
+<tr><td>핀(회전 자유)</td><td><span class="chip bad"><b aria-hidden="true">✕</b>0 · 메커니즘</span></td><td class=n>빈 상태도 불안정</td><td class=n>∞</td><td class=n>4.02</td><td class=n>76.4</td></tr>
+<tr><td>핀 + 측면 X 가새 (대안 B)</td><td><span class="chip ok"><b aria-hidden="true">✓</b>76.0</span></td><td class=n>4,908</td><td class=n>0.28</td><td class=n>4.02</td><td class=n>76.4</td></tr>
+</table></div>
+<div class="callout">
+<p><b>접합 요구조건.</b> 설계하중에서 α<sub>cr</sub> ≥ 10이 되려면 k ≥ 약 5.3×10⁵ N·mm/rad가 필요합니다(계산점 사이 로그 보간). 접합 1곳이 1° 돌 때 약 9.3 N·m를 버티는 수준입니다. k가 약 1.9×10⁴ 아래로 내려가면 30kg을 걸기 전에 이론적으로 무너집니다.</p>
+<p>예를 들어 끼움식 플라스틱 클립처럼 헐거운 접합(k ≈ 10⁴)이면 빨래 약 21kg에서 무너지는 것으로 계산됩니다. 실제로는 초기 기울어짐과 유격 때문에 이보다 일찍 무너집니다.</p>
+</div>
+
+<h2>6. 남은 항목 검토</h2>
+<div class="tw"><table>
+<tr><th>항목</th><th>작용</th><th>저항 / 기준</th><th>이용률</th><th>비고</th></tr>
+<tr><td>프레임 강도 (설계하중, 최악 경우)</td><td class=n>29.6 MPa</td><td class=n>235 MPa</td><td><span class="chip ok"><b aria-hidden="true">✓</b>0.13</span></td><td>모서리 편중 + 1.35G + 1.5Q</td></tr><tr><td>봉 강도 · 강접합 (설계하중)</td><td class=n>68.1 MPa</td><td class=n>235 MPa</td><td><span class="chip ok"><b aria-hidden="true">✓</b>0.29</span></td><td>가운데 봉 5kg 집중</td></tr><tr><td>봉 강도 · 핀접합 (설계하중)</td><td class=n>114.2 MPa</td><td class=n>235 MPa</td><td><span class="chip ok"><b aria-hidden="true">✓</b>0.49</span></td><td>단순지지, 봉 하나 중앙 5kg</td></tr><tr><td>봉–프레임 접합 모멘트 (참고식)</td><td class=n>7.72 N·m</td><td class=n>13.5 N·m</td><td><span class="chip ok"><b aria-hidden="true">✓</b>0.57</span></td><td>EN 1993-1-8 표 7.14 형식, 두께 1mm는 적용범위 밖</td></tr><tr><td>전체 좌굴 (강접합)</td><td class=n>α = 16.0</td><td class=n>α ≥ 10</td><td><span class="chip ok"><b aria-hidden="true">✓</b>0.63</span></td><td>1차 모드 = 길이방향 래킹</td></tr><tr><td>벽 국부좌굴 (압축 40mm 벽)</td><td class=n>29.3 MPa</td><td class=n>σcr ≈ 475 MPa</td><td><span class="chip ok"><b aria-hidden="true">✓</b>0.06</span></td><td>단면 등급: 압축 2등급, 휨 1등급</td></tr><tr><td>횡비틀림좌굴 (상부 띠 1,020mm)</td><td class=n>λ̄LT = 0.25</td><td class=n>χLT ≈ 0.96</td><td><span class="chip ok"><b aria-hidden="true">✓</b>0.13</span></td><td>폐단면이라 영향 작음</td></tr><tr><td>피로 · 봉 (15년 · 하루 2회)</td><td class=n>73.7 MPa</td><td class=n>151 MPa</td><td><span class="chip ok"><b aria-hidden="true">✓</b>0.49</span></td><td>상세등급 36(최저 수준) 가정, 10,950회</td></tr><tr><td>구멍 응력집중 · 프레임 (Kt = 3)</td><td class=n>59.4 MPa</td><td class=n>235 MPa</td><td><span class="chip ok"><b aria-hidden="true">✓</b>0.25</span></td><td>사용하중, 어디에 구멍이 있어도</td></tr><tr><td>구멍 응력집중 · 봉 중앙 (Kt = 3)</td><td class=n>229.2 MPa</td><td class=n>235 MPa</td><td><span class="chip warn"><b aria-hidden="true">!</b>0.98</span></td><td>봉 중앙에는 구멍 금지</td></tr><tr><td>가새 압축 (대안 B)</td><td class=n>14.3 N</td><td class=n>1,681 N</td><td><span class="chip ok"><b aria-hidden="true">✓</b>0.01</span></td><td>탄성 좌굴하중 대비, 핀 단부</td></tr>
+</table></div>
+<ul class="plain note">
+<li>두께 1mm 관은 EN 1993-1-8 중공단면 접합식의 적용범위(벽 두께 2.5mm 이상)를 벗어납니다. 접합 저항 13.5N·m는 참고값이며, 접합 모멘트 시험으로 확인해야 합니다.</li>
+<li>1mm 벽 용접은 녹아내림과 변형 위험이 있어 TIG·레이저 같은 정밀 용접이나 기계식 접합이 필요합니다. 용접 품질 자체는 계산으로 확인할 수 없습니다.</li>
+<li>피로는 하중 반복이 15년간 약 1.1만 회로 적어서 지배하지 않습니다. 응력 범위가 허용치의 절반 이하입니다.</li>
+<li>봉 중앙부는 휨이 가장 큰 곳이라 구멍(Kt≈3)을 뚫으면 사용하중에서 국부적으로 항복 가까이(약 229MPa) 갑니다. 구멍은 봉 끝 근처에만 둡니다.</li>
+</ul>
+
+<h2>7. 넘어짐과 미끄러짐</h2>
+<p>봉이 모두 발 사이(폭 90~1,110mm, 길이 0~1,000mm)에 있습니다. 그래서 빨래나 손으로 누르는 <b>수직</b> 힘으로는 넘어지지 않습니다. 위험한 것은 수평으로 미는 힘입니다.</p>
+<div class="tw"><table>
+<tr><th>경우 (꼭대기 1.2m에서 수평력)</th><th>넘어짐 N</th><th>미끄러짐 N (μ=0.3)</th><th>미끄러짐 N (μ=0.5)</th><th>μ=0.3에서 먼저</th><th>바람 m/s 넘어짐 / 미끄러짐</th></tr>
+<tr><td>빈 건조대 · 길이방향(발 간격 1.0m)</td><td class=n>59.9</td><td class=n>43.1</td><td class=n>71.9</td><td>미끄러짐</td><td class=n>–</td></tr><tr><td>빈 건조대 · 폭방향(발 간격 1.2m)</td><td class=n>71.9</td><td class=n>43.1</td><td class=n>71.9</td><td>미끄러짐</td><td class=n>–</td></tr><tr><td>30kg 균등 · 길이방향</td><td class=n>182.5</td><td class=n>131.4</td><td class=n>219.0</td><td>미끄러짐</td><td class=n>18 / 13</td></tr><tr><td>30kg 균등 · 폭방향</td><td class=n>219.0</td><td class=n>131.4</td><td class=n>219.0</td><td>미끄러짐</td><td class=n>20 / 13</td></tr><tr><td>30kg 앞쪽 70% · 길이방향, 치우친 쪽으로</td><td class=n>158.0</td><td class=n>131.4</td><td class=n>219.0</td><td>미끄러짐</td><td class=n>17 / 13</td></tr><tr><td>30kg 한쪽 9개 봉 · 폭방향, 치우친 쪽으로</td><td class=n>152.8</td><td class=n>131.4</td><td class=n>219.0</td><td>미끄러짐</td><td class=n>17 / 13</td></tr>
+</table></div>
+<p class="note">강체·접합 변형 무시. 바람은 실외 사용을 가정한 대략값입니다. 젖은 빨래의 바람받이 면적 1m², 힘계수 1.2, 합력 높이 0.9m로 가정했습니다. 빈 건조대는 약 60N(6kgf)의 수평력으로 넘어지므로 아이가 당기거나 매달리는 상황은 위험합니다. 바닥이 미끄러우면(μ≈0.3) 넘어지기 전에 미끄러지고, 고무발처럼 마찰이 크면(μ≈0.5) 빈 건조대는 미끄러지기 전에 넘어집니다.</p>
+
+<h2>8. 얼마까지 버티나</h2>
+<ul class="plain">
+<li><b>건조대 전체:</b> 설계하중 기준 약 <b>188kg</b>까지 응력·2차 효과 검토를 통과합니다(강접합, 가장 불리한 모서리 편중 배치). 이 값은 계산상 용량이며 정격으로 쓰면 안 됩니다.</li>
+<li><b>봉 1개:</b> 중앙 집중하중으로 약 <b>10.4kg</b>(설계, 핀접합 가정), 처음 항복은 약 15.8kg입니다. 사용 안내는 봉당 5kg 이하를 권합니다.</li>
+<li>실질적인 한계는 재료가 아니라 <b>접합 강성·유격</b>과 <b>넘어짐</b>입니다.</li>
+</ul>
+
+<h2>9. 접이식으로 만든다면</h2>
+<p>1차 보고서의 형상은 고정식(연속 강접합)입니다. 접이 구조 도면이 없으므로 특정 경첩이나 잠금장치를 검증할 수는 없습니다. 대신 어떤 접이 구조든 만족해야 할 조건을 이 해석에서 뽑았습니다.</p>
+<ul class="plain">
+<li>봉을 접는 구조(봉 끝이 돌아감): 봉 끝 접합이 핀이 되므로 <b>측면 X 가새가 필수</b>입니다. 가새 가운데를 핀으로 하면 가위처럼 접힙니다. 펼친 상태 잠금은 가새 길이를 고정하는 방식(스톱 또는 잠금 핀)으로 합니다.</li>
+<li>가새 없이 접합 잠금만으로 버티려면: 잠금 상태 회전강성 ≥ 5.3×10⁵ N·mm/rad, 모멘트 저항 ≥ 7.7 N·m(설계)가 필요하고 유격이 거의 없어야 합니다.</li>
+<li>가새 부재력은 설계하중에서 14N 정도로 작습니다. 이 값은 16×1 관 가새로 계산한 것입니다. 인장만 받는 와이어로 바꾸면 다시 계산해야 합니다.</li>
+</ul>
+
+<h2>10. 계산으로 확인할 수 없어 시험이 필요한 것</h2>
+<ul class="plain">
+<li><b>접합 회전강성 시험:</b> 프레임 조각에 봉을 붙이고 끝에 하중을 걸어 모멘트–회전을 측정합니다. k ≥ 5.3×10⁵ N·mm/rad와 유격 여부를 확인합니다.</li>
+<li><b>정적 하중 시험(제안):</b> 45kg(30kg × 1.5)을 균등·모서리 편중으로 걸어 둔 뒤, 하중을 뺐을 때 영구 변형이 없는지 봅니다. 봉 1개에는 중앙 10kg을 겁니다.</li>
+<li><b>흔들림 시험:</b> 30kg을 건 상태에서 꼭대기를 길이방향으로 15N 밀었을 때 흔들림이 4mm 이하인지 봅니다(강접합 계산값 1.7mm).</li>
+<li><b>안정성 시험:</b> 실제 바닥(타일·마루)에서 넘어짐/미끄러짐 시작 힘을 재서 위 표와 비교합니다.</li>
+<li>이 시험 절차는 제 제안입니다. 건조대에 적용되는 공인 시험 규격은 확인하지 못했습니다.</li>
+</ul>
+
+<h2>가정과 한계</h2>
+<ul class="plain note">
+<li>선형 탄성 1차 해석과 선형 좌굴 해석입니다. 큰 하중에서의 용량은 1/(1−1/α) 증폭으로 2차 효과를 근사했습니다.</li>
+<li>모서리가 각진 단면 성질을 썼습니다(실제 둥근 모서리보다 단면이 약간 큼). 접합부·잠금부·고무발 질량은 제외했습니다.</li>
+<li>하중계수 1.35/1.5는 EN 1990 건축 구조용 값을 설계 가정으로 빌려 쓴 것입니다. 가정용품 인증 기준이 아닙니다.</li>
+<li>빨래는 봉 길이를 따라 고르게 분포한다고 보았고, 봉 하나 경우만 중앙 집중으로 계산했습니다.</li>
+</ul>
+
+<h2>재현 방법과 출처</h2>
+<p class="note"><code>ribbon30_drying_rack/</code> 폴더에서 <code>python3 -m unittest test_fem3d</code>(엔진 검증) → <code>python3 rack_model.py</code>(results.json 생성) → <code>python3 build_report.py</code>(이 보고서)를 차례로 실행합니다. numpy·scipy가 필요합니다.</p>
+<ul class="plain note">
+<li><a href="https://en.wikipedia.org/wiki/European_Union_energy_label">EU 에너지 라벨: 세탁기 탈수 효율 등급(잔류수분율 구간)</a> · 2차 자료이므로 원 규정(EU 1061/2010) 확인을 권합니다.</li>
+<li><a href="https://www.eea.europa.eu/en/circularity/sectoral-modules/product-lifespans/evolution-in-the-average-number-of-washing-cycles-per-washing-machine-in-eu-intensity-of-use">EEA: EU 세탁기 1회 평균 세탁량 3.1kg(1995) → 4kg(2020)</a> · 검색 요약으로 확인했고 원문 페이지는 접속이 막혀 열지 못했습니다.</li>
+<li><a href="https://www.consumer.org.nz/articles/what-size-washing-machine-do-you-really-need">Consumer NZ: 가정 세탁 1회 평균 약 3.4kg</a> · 검색 요약으로 확인.</li>
+<li><a href="https://www.bosch-home.com/qa/en/products/washers-dryers/washing-machines/buying-guide">Bosch 구매 안내: 3~4인 가정 8~9kg</a> · 1차 보고서 인용.</li>
+<li><a href="https://choicemon.com/washing-machine-capacity/">국내 세탁기 용량 가이드(4인: 통돌이 15~18kg, 드럼 19~21kg)</a> · 비공식 자료.</li>
+<li>강구조 판단 기준: EN 1993-1-1(단면 등급, 좌굴), EN 1993-1-8 표 7.14(중공단면 접합, 참고), EN 1993-1-9(피로 상세등급). 조항 번호와 계수는 기억에 의존한 부분이 있으니 원문으로 확인하십시오.</li>
+</ul>
+<p class="note"><small>예비 구조 검토이며 제품 인증이 아닙니다. 계산: 3D 보 FEM, 10개 접합 강성 조건, 7개 하중 경우.</small></p>
+</main>
+
+<script>
+(function(){var box=document.querySelector('.chartbox');if(!box)return;var tip=document.getElementById('tip');
+function show(e){var t=e.target;if(!t.dataset||!t.dataset.tip)return;tip.innerHTML=t.dataset.tip;tip.hidden=false;
+var b=box.getBoundingClientRect(),r=t.getBoundingClientRect();var x=r.left-b.left+r.width/2,y=r.top-b.top-8;
+tip.style.left=Math.max(4,Math.min(x-tip.offsetWidth/2,b.width-tip.offsetWidth-4))+'px';tip.style.top=(y-tip.offsetHeight)+'px';}
+function hide(){tip.hidden=true;}
+box.addEventListener('mouseover',show);box.addEventListener('focusin',show);box.addEventListener('mouseout',hide);box.addEventListener('focusout',hide);})();
+</script></body></html>
